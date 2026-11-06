@@ -11,20 +11,25 @@ st.set_page_config(
 )
 
 @st.cache_data
-def load_data(uploaded_file=None):
+def load_data(uploaded_file):
     if uploaded_file is not None:
         data = pd.read_csv(uploaded_file)
-    else:
-        data = pd.read_csv(r"E:\Data Visualisation Projects\StreamlitProject\customer_subscription_churn_analysis.csv")
-    data["signup_date"] = pd.to_datetime(data["signup_date"], errors="coerce")
-    return data
+        if "signup_date" in data.columns:
+            data["signup_date"] = pd.to_datetime(data["signup_date"], errors="coerce")
+        return data
+    return None
 
 st.title("📊 Customer Subscription Churn Analysis Dashboard")
 st.markdown("This Streamlit project analyzes customer subscription churn using Pandas, NumPy, Matplotlib, and Seaborn.")
 
 st.sidebar.header("Upload / Filter Data")
 uploaded_file = st.sidebar.file_uploader("Upload CSV file", type=["csv"])
-df = load_data(uploaded_file)
+
+if uploaded_file is not None:
+    df = load_data(uploaded_file)
+else:
+    st.info("Please upload your CSV file.")
+    st.stop()
 
 st.sidebar.subheader("Filters")
 plan_options = sorted(df["plan_type"].dropna().unique().tolist())
